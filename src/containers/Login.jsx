@@ -25,8 +25,10 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const loggedIn = await loginUser(form.email,form.password);
-    dispatch(setLogin({user: loggedIn.user,token: loggedIn.token}));
-    navigate('/');
+    if(loggedIn.user){
+        dispatch(setLogin({user: loggedIn.user,token: loggedIn.token}));
+        navigate('/');
+    }
   };
 
 

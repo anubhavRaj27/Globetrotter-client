@@ -1,10 +1,19 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect} from "react";
 import { motion } from "framer-motion";
 import styled from "styled-components";
 import EarthCanvas from "../canvas/Earth";
 import { slideIn } from "../utils/motion";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router";
 
-const LoginLayout = ({children}) => {
+const LoginLayout = ({ children }) => {
+  const isAuth = useSelector((state) => state.auth.token);
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (isAuth) {
+      navigate("/");
+    }
+  }, []);
 
   return (
     <OuterDiv>
@@ -33,7 +42,7 @@ const OuterDiv = styled.div`
   gap: 2.5rem;
   position: relative;
   z-index: 1;
-  height: 100vh;  
+  height: 100vh;
 `;
 
 const MotionFormContainer = styled(motion.div)`

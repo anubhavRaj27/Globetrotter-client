@@ -10,7 +10,7 @@ const Register = () => {
   const [form, setForm] = useState({
     email: "",
     password: "",
-    userName: ""
+    userName: "",
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -22,10 +22,23 @@ const Register = () => {
   };
 
   const handleSubmit = async (e) => {
-    console.log('here');
-    e.preventDefault();
-    const userId = await createAccount(form.email,form.password,form.userName);
-    console.log(userId);
+    try {
+      e.preventDefault();
+      const userId = await createAccount(
+        form.email,
+        form.password,
+        form.userName
+      );
+      if (userId) {
+        const loggedIn = await loginUser(form.email, form.password);
+        if (loggedIn.user) {
+          dispatch(setLogin({ user: loggedIn.user, token: loggedIn.token }));
+          navigate("/");
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -65,12 +78,12 @@ const Register = () => {
           />
         </FormLabel>
         <ButtonContainer>
-          <SubmitButton type="submit" >
+          <SubmitButton type="submit">
             {loading ? "loading..." : "Create"}
           </SubmitButton>
         </ButtonContainer>
       </Form>
-      <NavigateContainer onClick={()=>navigate("/login")}>
+      <NavigateContainer onClick={() => navigate("/login")}>
         Already have an account? Login.
       </NavigateContainer>
     </UpperDiv>
@@ -103,7 +116,7 @@ const SubHeading = styled.div`
 `;
 
 const Form = styled.form`
-padding-top: 2.5rem;
+  padding-top: 2.5rem;
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -154,11 +167,11 @@ const SubmitButton = styled.button`
 `;
 
 const NavigateContainer = styled.div`
-margin-top: 20px;
-    font-size: 10px;
-    color: white;
-    gap: 4px;
-    cursor: pointer;
+  margin-top: 20px;
+  font-size: 10px;
+  color: white;
+  gap: 4px;
+  cursor: pointer;
 `;
 
 export default Register;

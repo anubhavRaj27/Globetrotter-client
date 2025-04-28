@@ -5,6 +5,7 @@ import PrivateRoute from "./hoc/PrivateRoute";
 import CloudBg from "./hoc/CloudBg";
 import Login from "./containers/Login";
 import Register from "./containers/Register";
+import Game from "./containers/Game";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route element={<CloudBg />}>
           <Route path="/login" element={<LoginLayout children={<Login />} />} />
           <Route path="/register" element={<LoginLayout children={<Register />} />} />
+          <Route path="/" element={<PrivateRoute><Game /></PrivateRoute>} />
         </Route>
       </Routes>
     </BrowserRouter>
