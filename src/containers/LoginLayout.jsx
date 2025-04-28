@@ -33,6 +33,7 @@ const OuterDiv = styled.div`
   gap: 2.5rem;
   position: relative;
   z-index: 1;
+  height: 100vh;  
 `;
 
 const MotionFormContainer = styled(motion.div)`

@@ -22,9 +22,10 @@ const CloudBg = () => {
   );
 }
 
-const Container = styled.div`
+const Container = styled.div`     
   width: 100vw;
   height: 100vh;
+  overflow: scroll;
 `;
 
 export default CloudBg;

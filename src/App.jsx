@@ -4,6 +4,7 @@ import LoginLayout from "./containers/LoginLayout";
 import PrivateRoute from "./hoc/PrivateRoute";
 import CloudBg from "./hoc/CloudBg";
 import Login from "./containers/Login";
+import Register from "./containers/Register";
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
       <Routes>
         <Route element={<CloudBg />}>
           <Route path="/login" element={<LoginLayout children={<Login />} />} />
+          <Route path="/register" element={<LoginLayout children={<Register />} />} />
         </Route>
       </Routes>
     </BrowserRouter>

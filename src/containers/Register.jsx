@@ -1,34 +1,32 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
-import { loginUser } from "../api";
-import { useDispatch } from "react-redux";
-import { setLogin } from "../slices/authSlice";
+import { getApiUrl } from "../utils/config";
+import { createAccount } from "../api";
 
-const Login = () => {
+const Register = () => {
+  getApiUrl();
   const formRef = useRef();
   const [form, setForm] = useState({
     email: "",
     password: "",
+    userName: ""
   });
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { target } = e;
     const { name, value } = target;
-    console.log(name);
     setForm({ ...form, [name]: value });
   };
 
   const handleSubmit = async (e) => {
+    console.log('here');
     e.preventDefault();
-    const loggedIn = await loginUser(form.email,form.password);
-    dispatch(setLogin({user: loggedIn.user,token: loggedIn.token}));
-    navigate('/');
+    const userId = await createAccount(form.email,form.password,form.userName);
+    console.log(userId);
   };
-
 
   return (
     <UpperDiv>
@@ -53,17 +51,27 @@ const Login = () => {
             name="password"
             value={form.password}
             onChange={handleChange}
-            placeholder="What's your password?"
+            placeholder="Set a secure password!"
+          />
+        </FormLabel>
+        <FormLabel>
+          <LabelSpan>User Name</LabelSpan>
+          <Input
+            type="text"
+            name="userName"
+            value={form.userName}
+            onChange={handleChange}
+            placeholder="Create a creative user name!"
           />
         </FormLabel>
         <ButtonContainer>
-          <SubmitButton type="submit">
-            {loading ? "loading..." : "Login"}
+          <SubmitButton type="submit" >
+            {loading ? "loading..." : "Create"}
           </SubmitButton>
         </ButtonContainer>
       </Form>
-      <NavigateContainer onClick={()=>navigate("/register")}>
-        Dont have an Account? Create One.
+      <NavigateContainer onClick={()=>navigate("/login")}>
+        Already have an account? Login.
       </NavigateContainer>
     </UpperDiv>
   );
@@ -95,7 +103,7 @@ const SubHeading = styled.div`
 `;
 
 const Form = styled.form`
-  margin-top: 2.5rem;
+padding-top: 2.5rem;
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -106,6 +114,7 @@ const FormLabel = styled.label`
   display: flex;
   flex-direction: column;
   font-size: 25px;
+  margin-bottom: 10px;
 `;
 
 const LabelSpan = styled.span`
@@ -152,4 +161,4 @@ margin-top: 20px;
     cursor: pointer;
 `;
 
-export default Login;
+export default Register;
