@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import { getRandomCity, getCity, getAnswer, updateUserDb } from "../api";
+import { getRandomCity, getCity, getAnswer, updateUserDb, resetUser } from "../api";
 import { updateUser, updateUserCities } from "../slices/authSlice";
 import Confetti from "react-confetti";
 import { useWindowSize } from "@uidotdev/usehooks";
@@ -95,11 +95,27 @@ const Game = () => {
   };
 
   const handleNext = async () => {
-    setShowConfetti(false);
-    setFeedback("");
-    const city = await getNextCity();
-    setCurrent(city);
+    try{
+      setShowConfetti(false);
+      setFeedback("");
+      const city = await getNextCity();
+      setCurrent(city);
+    }catch(e){
+      console.error(e);
+    }
   };
+
+  const handleReset = async () => {
+    try{
+      const updatedUser = await resetUser(user.userId);
+      dispatch(updateUser(updatedUser));
+      setCorrect(0);
+      setIncorrect(0);
+      handleNext();
+    }catch(e){
+      console.error(e);
+    }
+  }
 
   return (
     <OuterContainer>
@@ -170,7 +186,7 @@ const Game = () => {
           </NextButton>
           <NextButton
             onClick={() => {
-              feedback ? handleNext() : {};
+              feedback ? handleNext() : handleReset();
             }}
           >
             {feedback ? "Next" : "Reset"}

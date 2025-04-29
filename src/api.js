@@ -96,3 +96,16 @@ export const updateUserDb = async (userId,user) => {
     }
   }
 }
+
+export const resetUser = async (userId) => {
+  try{
+    const response = await axiosWithHeaders.patch(`/user/reset/${userId}`);
+    return response.data;
+  }catch (e) {
+    if (e.response) {
+      throw new Error(e.response.data?.error || e.message);
+    } else {
+      throw new Error(e.message);
+    }
+  }
+}
