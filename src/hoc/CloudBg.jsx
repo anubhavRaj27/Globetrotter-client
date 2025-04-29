@@ -14,7 +14,7 @@ const VantaLayout = () => {
       effect.current = CLOUDS({
         el: bgRef.current,
         THREE,                   
-        speed:      1.2,
+        speed:0.75,
       });
     }
     return () => {             

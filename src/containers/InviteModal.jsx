@@ -2,13 +2,13 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { createPortal } from "react-dom";
 
-const generateInviteLink = (userId) => `${window.location.origin}/register`;
+const generateInviteLink = () => `${window.location.origin}/register`;
 
-const InviteModal = ({ userId, isOpen, onClose }) => {
+const InviteModal = ({  isOpen, onClose }) => {
   const portalRoot = document.getElementById("modal-root");
   const [copied, setCopied] = useState(false);
   const overlayRef = useRef(null);
-  const inviteLink = generateInviteLink(userId);
+  const inviteLink = generateInviteLink();
 
   useEffect(() => {
     if (!isOpen) return;

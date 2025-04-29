@@ -1,12 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import { getRandomCity, getCity, getAnswer, updateUserDb, resetUser } from "../api";
-import { updateUser, updateUserCities } from "../slices/authSlice";
+import {
+  getRandomCity,
+  getCity,
+  getAnswer,
+  updateUserDb,
+  resetUser,
+} from "../api";
+import { setLogin, updateUser, updateUserCities } from "../slices/authSlice";
 import Confetti from "react-confetti";
 import { useWindowSize } from "@uidotdev/usehooks";
 import InviteModal from "./InviteModal";
 import { useToast } from "./ToastProvider";
+import { ShimmerBox } from "../styles/login";
+import { useNavigate } from "react-router";
 
 const Game = () => {
   const user = useSelector((state) => state.auth.user);
@@ -19,7 +27,9 @@ const Game = () => {
   const [fadingOut, setFadingOut] = useState(false);
   const { width, height } = useWindowSize();
   const [open, setOpen] = useState(false);
-  const toast = useToast();     
+  const [loading, setLoading] = useState(true);
+  const toast = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
@@ -53,22 +63,28 @@ const Game = () => {
   };
 
   const getNextCity = async () => {
+    setLoading(true);
     try {
       const city = await getRandomCity(user?.userId);
       dispatch(updateUserCities(city.cityId));
       return city;
     } catch (e) {
       console.error(e);
+    } finally {
+      setLoading(false);
     }
   };
 
   const getCurrentCity = async (cityId) => {
+    setLoading(true);
     try {
       const city = await getCity(cityId);
       setCurrent(city);
       return city;
     } catch (e) {
       console.error(e);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -77,7 +93,8 @@ const Game = () => {
   };
 
   const handleAnswer = async (option) => {
-    try{
+    setLoading(true);
+    try {
       const correctAnswer = await getAnswer(option, current.cityId);
       const updatedUserTemp = correctAnswer
         ? { ...user, correct: correct + 1 }
@@ -89,41 +106,50 @@ const Game = () => {
       dispatch(updateUser(updatedUserResponse));
       if (correctAnswer) {
         setCorrect((prev) => prev + 1);
-        setFeedback(`🎉 Correct! Fun Fact: ${current.fun_fact[getRandomInt(2)]}`);
+        setFeedback(
+          `🎉 Correct! Fun Fact: ${current.fun_fact[getRandomInt(2)]}`
+        );
         triggerConfetti();
       } else {
         setIncorrect((prev) => prev + 1);
         setFeedback(`😢 Oops! Trivia: ${current.trivia[getRandomInt(2)]}`);
       }
-    }catch(e){
-      toast.error("Had some problem in retrieving answer, Please try again")
+    } catch (e) {
+      toast.error("Had some problem in retrieving answer, Please try again");
       console.error(e);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleNext = async () => {
-    try{
+    try {
       setShowConfetti(false);
       setFeedback("");
       const city = await getNextCity();
       setCurrent(city);
-    }catch(e){
-      toast.error("Had some problem in retrieving question, Please try again")
+    } catch (e) {
+      toast.error("Had some problem in retrieving question, Please try again");
       console.error(e);
     }
   };
 
   const handleReset = async () => {
-    try{
+    try {
       const updatedUser = await resetUser(user.userId);
       dispatch(updateUser(updatedUser));
       setCorrect(0);
       setIncorrect(0);
       handleNext();
-    }catch(e){
-      toast.error("Had some problem in reseting the user, Please try again")
+    } catch (e) {
+      toast.error("Had some problem in reseting the user, Please try again");
       console.error(e);
     }
+  };
+
+  const handleLogout = () => {
+    dispatch(setLogin({user:null, token: null}));
+    navigate('/login');
   }
 
   return (
@@ -151,17 +177,28 @@ const Game = () => {
         </HeaderContainer>
 
         <Section>
-          {current && (
-            <Clue>
-              {current?.clues[getRandomInt(current?.clues?.length - 1)]}
-            </Clue>
+          {loading ? (
+            <ShimmerBox h="5rem" />
+          ) : (
+            current && (
+              <Clue>
+                {current?.clues[getRandomInt(current?.clues?.length - 1)]}
+              </Clue>
+            )
           )}
         </Section>
         <Section>
           {feedback ? (
             <FeedbackContainer>
-              <div>{feedback}</div>
+              {" "}
+              <div>{feedback}</div>{" "}
             </FeedbackContainer>
+          ) : loading ? (
+            <OptionsContainer>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <ShimmerBox key={i} h="3.5rem" />
+              ))}
+            </OptionsContainer>
           ) : (
             current && (
               <OptionsContainer>
@@ -197,17 +234,18 @@ const Game = () => {
             onClick={() => {
               feedback ? handleNext() : handleReset();
             }}
+            disabled={loading}
           >
             {feedback ? "Next" : "Reset"}
           </NextButton>
         </SpaceAroundContainer>
         <InviteModal
-          userId={user.userId}
           isOpen={open}
           onClose={() => setOpen(false)}
         />
 
         <Footer>
+          <Logout onClick={handleLogout} >Logout</Logout>
           <p>Globetrotter &copy; 2025</p>
         </Footer>
       </GameContainer>
@@ -273,7 +311,7 @@ const Section = styled.section`
 
 const OptionsContainer = styled.div`
   width: 100%;
-  height: 1005;
+  height: 100%;
   display: grid;
   grid-template: repeat(2, 1fr) / repeat(2, 1fr);
   gap: 10px;
@@ -338,6 +376,10 @@ const Footer = styled.footer`
   opacity: 0.7;
   position: absolute;
   bottom: 20px;
+`;
+
+const Logout = styled.span`
+  cursor: pointer;
 `;
 
 export default Game;

@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 
 export const UpperDiv = styled.div`
   height: 100%;
@@ -68,9 +68,8 @@ export const ButtonContainer = styled.div`
 `;
 
 export const GeneralErrorContainer = styled(ButtonContainer)`
-    height: 2rem;
+  height: 2rem;
 `;
-
 
 export const SubmitButton = styled.button`
   background: #daebe3;
@@ -80,6 +79,7 @@ export const SubmitButton = styled.button`
   outline: none;
   font-size: 1rem;
   cursor: pointer;
+  border: 0px;
 `;
 
 export const NavigateContainer = styled.div`
@@ -91,6 +91,26 @@ export const NavigateContainer = styled.div`
 `;
 
 export const ErrorContainer = styled.span`
-    color: red;
-    font-size: 12px;
+  color: red;
+  font-size: 12px;
+`;
+
+const shimmer = keyframes`
+   0%   { background-position: -400% 0; }
+   100% { background-position:  400% 0; }
+ `;
+
+export const ShimmerBox = styled.div`
+  width: ${({ w = "100%" }) => w};
+  height: ${({ h = "5rem" }) => h};
+  border-radius: 20px;
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.25) 20%,
+    rgba(255, 255, 255, 0.05) 40%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  background-size: 400% 100%;
+  animation: ${shimmer} 1.2s ease-in-out infinite;
 `;
