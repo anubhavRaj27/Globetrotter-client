@@ -13,8 +13,15 @@ export const authSlice = createSlice({
       state.user = action.payload.user;
       state.token = action.payload.token;
     },
+    updateUser : (state, action) => {
+      state.user = action.payload;
+    },
+    updateUserCities : (state,action) => {
+      state.user.cities.push(action.payload);
+      state.user.currentCityId = action.payload;
+    }
   },
 });
 
-export const { setLogin } = authSlice.actions;
+export const { setLogin,updateUser,updateUserCities } = authSlice.actions;
 export default authSlice.reducer;

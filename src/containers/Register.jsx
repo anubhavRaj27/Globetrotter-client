@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
-import { getApiUrl } from "../utils/config";
-import { createAccount } from "../api";
+import { createAccount,loginUser } from "../api";
+import { useDispatch } from "react-redux";
+import { setLogin } from "../slices/authSlice";
 
 const Register = () => {
-  getApiUrl();
   const formRef = useRef();
   const [form, setForm] = useState({
     email: "",
@@ -14,6 +14,7 @@ const Register = () => {
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     const { target } = e;

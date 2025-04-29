@@ -1,39 +1,82 @@
-import React, { useState } from "react";
-import Confetti from "react-confetti";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-
-const destinations = [
-  {
-    clue: "I have an iconic tower and amazing croissants.",
-    options: ["Paris", "Rome", "London", "New York"],
-    answer: "Paris",
-    funFact:
-      "Paris is home to the Eiffel Tower, one of the most recognized structures in the world!",
-  },
-  // Add more destinations here
-];
+import { getRandomCity, getCity, getAnswer, updateUserDb } from "../api";
+import { updateUser, updateUserCities } from "../slices/authSlice";
 
 const Game = () => {
+  const user = useSelector((state) => state.auth.user);
   const [current, setCurrent] = useState(0);
-  const [score, setScore] = useState(0);
+  const [correct, setCorrect] = useState(user.correct);
+  const [incorrect, setIncorrect] = useState(user.incorrect);
   const [feedback, setFeedback] = useState("");
+  const dispatch = useDispatch();
   const [showConfetti, setShowConfetti] = useState(false);
 
-  const handleAnswer = (option) => {
-    if (option === destinations[current].answer) {
-      setScore(score + 1);
-      setFeedback(`🎉 Correct! Fun Fact: ${destinations[current].funFact}`);
+  useEffect(() => {
+    if (user) {
+      (async () => {
+        let city = null;
+        if (!user.currentCityId ) {
+          city = await getNextCity();
+        } else {
+          city = await getCurrentCity(user.currentCityId);
+        }
+        city && setCurrent(city);
+      })();
+    }
+  }, []);
+
+  const getNextCity = async () => {
+    try {
+      const city = await getRandomCity(user?.userId);
+      dispatch(updateUserCities(city.cityId));
+      return city;
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const getCurrentCity = async (cityId) => {
+    try {
+      const city = await getCity(cityId);
+      setCurrent(city);
+      return city;
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const getRandomInt = (n) => {
+    return Math.floor(Math.random() * n);
+  };
+
+  const handleAnswer = async (option) => {
+    const correctAnswer = await getAnswer(option,current.cityId);
+    console.log(correctAnswer);
+    if (correctAnswer) {
+      const updatedUserTemp = {...user, correct: correct+1};
+      console.log(updatedUserTemp);
+      const updatedUserResponse = await updateUserDb(user.userId, updatedUserTemp);
+      dispatch(updateUser(updatedUserResponse));
+      setCorrect((prev)=>prev+1);
+      setFeedback(`🎉 Correct! Fun Fact: ${current.fun_fact[getRandomInt(2)]}`);
       setShowConfetti(true);
     } else {
-      setFeedback(`😢 Oops! Fun Fact: ${destinations[current].funFact}`);
+      const updatedUserTemp = {...user, incorrect: incorrect+1};
+      const updatedUserResponse = await updateUserDb(user.userId, updatedUserTemp);
+      dispatch(updateUser(updatedUserResponse));
+      setIncorrect((prev)=>prev+1);
+      setFeedback(`😢 Oops! Fun Fact: ${current.fun_fact[getRandomInt(2)]}`);
       setShowConfetti(false);
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     setShowConfetti(false);
     setFeedback("");
-    setCurrent((prev) => (prev + 1) % destinations.length);
+    const city = await getNextCity();
+    setCurrent(city);
   };
 
   return (
@@ -45,14 +88,19 @@ const Game = () => {
         </HeaderContainer>
 
         <Section>
-          <Clue style={styles.clue}>{destinations[current].clue}</Clue>
+          {current && (
+            <Clue style={styles.clue}>
+              {current?.clues[getRandomInt(current?.clues?.length - 1)]}
+            </Clue>
+          )}
         </Section>
 
         <OptionsContainer>
           {feedback ? (
             <div style={styles.feedback}>{feedback}</div>
           ) : (
-            destinations[current].options.map((option) => (
+            current &&
+            current.options.map((option) => (
               <GameButtons key={option} onClick={() => handleAnswer(option)}>
                 {option}
               </GameButtons>
@@ -61,7 +109,7 @@ const Game = () => {
         </OptionsContainer>
 
         <Section>
-          <div style={styles.score}>Score: {score}</div>
+          <div style={styles.score}>Score: {correct}</div>
         </Section>
 
         <Section>
@@ -102,8 +150,9 @@ const GameContainer = styled.div`
   background-color: #213555;
   padding: 2rem;
   border-radius: 1rem;
-  min-width: 40vw;
-  width: 50vw;
+  width: 500px;
+  height: 90vh;
+  overflow-y: scroll;
 `;
 
 const HeaderContainer = styled.header`
@@ -154,7 +203,7 @@ const GameButtons = styled.button`
 `;
 
 const Clue = styled.p`
-    font-size: 1.5rem;
+  font-size: 1.5rem;
 `;
 
 const styles = {
