@@ -68,7 +68,7 @@ const Login = () => {
   return (
     <UpperDiv>
       <Heading>Globetrotter</Heading>
-      <SubHeading>Guess the places around the world</SubHeading>
+      <SubHeading>The Ultimate Travel Guessing Game!</SubHeading>
 
       <Form ref={formRef} onSubmit={handleSubmit}>
         <FormLabel>

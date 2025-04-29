@@ -147,7 +147,7 @@ const Game = () => {
         )}
         <HeaderContainer>
           <Title>Globetrotter</Title>
-          <Subtitle>Guess the Destination from the Clues!</Subtitle>
+          <Subtitle>The Ultimate Travel Guessing Game!</Subtitle>
         </HeaderContainer>
 
         <Section>
