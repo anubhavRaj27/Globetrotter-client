@@ -19,8 +19,12 @@ function App() {
   useEffect(()=>{
     (async()=>{
       if(token && user){
-        const updatedUser = await getUser(user.userId);
-        dispatch(updateUser(updatedUser));      
+        try{
+          const updatedUser = await getUser(user.userId);
+          dispatch(updateUser(updatedUser));     
+        }catch(e){
+          console.error(e);
+        }
       }
     })()
   },[token]);

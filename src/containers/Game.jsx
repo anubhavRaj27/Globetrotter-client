@@ -6,6 +6,7 @@ import { updateUser, updateUserCities } from "../slices/authSlice";
 import Confetti from "react-confetti";
 import { useWindowSize } from "@uidotdev/usehooks";
 import InviteModal from "./InviteModal";
+import { useToast } from "./ToastProvider";
 
 const Game = () => {
   const user = useSelector((state) => state.auth.user);
@@ -18,6 +19,7 @@ const Game = () => {
   const [fadingOut, setFadingOut] = useState(false);
   const { width, height } = useWindowSize();
   const [open, setOpen] = useState(false);
+  const toast = useToast();     
 
   useEffect(() => {
     if (user) {
@@ -75,22 +77,27 @@ const Game = () => {
   };
 
   const handleAnswer = async (option) => {
-    const correctAnswer = await getAnswer(option, current.cityId);
-    const updatedUserTemp = correctAnswer
-      ? { ...user, correct: correct + 1 }
-      : { ...user, incorrect: incorrect + 1 };
-    const updatedUserResponse = await updateUserDb(
-      user.userId,
-      updatedUserTemp
-    );
-    dispatch(updateUser(updatedUserResponse));
-    if (correctAnswer) {
-      setCorrect((prev) => prev + 1);
-      setFeedback(`🎉 Correct! Fun Fact: ${current.fun_fact[getRandomInt(2)]}`);
-      triggerConfetti();
-    } else {
-      setIncorrect((prev) => prev + 1);
-      setFeedback(`😢 Oops! Trivia: ${current.trivia[getRandomInt(2)]}`);
+    try{
+      const correctAnswer = await getAnswer(option, current.cityId);
+      const updatedUserTemp = correctAnswer
+        ? { ...user, correct: correct + 1 }
+        : { ...user, incorrect: incorrect + 1 };
+      const updatedUserResponse = await updateUserDb(
+        user.userId,
+        updatedUserTemp
+      );
+      dispatch(updateUser(updatedUserResponse));
+      if (correctAnswer) {
+        setCorrect((prev) => prev + 1);
+        setFeedback(`🎉 Correct! Fun Fact: ${current.fun_fact[getRandomInt(2)]}`);
+        triggerConfetti();
+      } else {
+        setIncorrect((prev) => prev + 1);
+        setFeedback(`😢 Oops! Trivia: ${current.trivia[getRandomInt(2)]}`);
+      }
+    }catch(e){
+      toast.error("Had some problem in retrieving answer, Please try again")
+      console.error(e);
     }
   };
 
@@ -101,6 +108,7 @@ const Game = () => {
       const city = await getNextCity();
       setCurrent(city);
     }catch(e){
+      toast.error("Had some problem in retrieving question, Please try again")
       console.error(e);
     }
   };
@@ -113,6 +121,7 @@ const Game = () => {
       setIncorrect(0);
       handleNext();
     }catch(e){
+      toast.error("Had some problem in reseting the user, Please try again")
       console.error(e);
     }
   }
