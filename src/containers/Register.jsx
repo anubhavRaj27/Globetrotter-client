@@ -1,13 +1,32 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router";
-import styled from "styled-components";
-import { createAccount,loginUser } from "../api";
+import { createAccount, loginUser } from "../api";
 import { useDispatch } from "react-redux";
 import { setLogin } from "../slices/authSlice";
+import {
+  UpperDiv,
+  Heading,
+  SubHeading,
+  Form,
+  FormLabel,
+  LabelSpan,
+  Input,
+  ButtonContainer,
+  SubmitButton,
+  NavigateContainer,
+  ErrorContainer,
+} from "../styles/login.js";
+import { ClipLoader } from "react-spinners";
 
 const Register = () => {
   const formRef = useRef();
   const [form, setForm] = useState({
+    email: "",
+    password: "",
+    userName: "",
+  });
+  const [errors, setErrors] = useState({
+    general: "",
     email: "",
     password: "",
     userName: "",
@@ -20,11 +39,21 @@ const Register = () => {
     const { target } = e;
     const { name, value } = target;
     setForm({ ...form, [name]: value });
+    if (errors.general || errors[name]) setErrors({ ...errors, [name]: "", general: "" });
   };
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
+    const newErrors = {
+      ...errors,
+      email: !form.email.trim() ? "Email is required" : "",
+      password: !form.password.trim() ? "Password is required" : "",
+      userName: !form.userName.trim() ? "Username is required" : "",
+    };
+    setErrors(newErrors);
+    if (newErrors.email || newErrors.password || newErrors.userName) return;
     try {
-      e.preventDefault();
+      setLoading(true);
       const userId = await createAccount(
         form.email,
         form.password,
@@ -39,6 +68,11 @@ const Register = () => {
       }
     } catch (err) {
       console.error(err);
+      setErrors((prev) => {
+        return { ...prev, general: err.message };
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -57,6 +91,7 @@ const Register = () => {
             onChange={handleChange}
             placeholder="What's your email?"
           />
+          {errors.email && <ErrorContainer>{errors.email}</ErrorContainer>}
         </FormLabel>
         <FormLabel>
           <LabelSpan>Password</LabelSpan>
@@ -67,9 +102,12 @@ const Register = () => {
             onChange={handleChange}
             placeholder="Set a secure password!"
           />
+          {errors.password && (
+            <ErrorContainer>{errors.password}</ErrorContainer>
+          )}
         </FormLabel>
         <FormLabel>
-          <LabelSpan>User Name</LabelSpan>
+          <LabelSpan>Username</LabelSpan>
           <Input
             type="text"
             name="userName"
@@ -77,10 +115,17 @@ const Register = () => {
             onChange={handleChange}
             placeholder="Create a creative user name!"
           />
+          {errors.userName && (
+            <ErrorContainer>{errors.userName}</ErrorContainer>
+          )}
         </FormLabel>
+
         <ButtonContainer>
-          <SubmitButton type="submit">
-            {loading ? "loading..." : "Create"}
+        {errors.general && (
+            <ErrorContainer>{errors.general}</ErrorContainer>
+        )}
+          <SubmitButton type="submit" disabled={loading}>
+            {loading ? <ClipLoader color="#213555" size={20} /> : "Create"}
           </SubmitButton>
         </ButtonContainer>
       </Form>
@@ -90,89 +135,5 @@ const Register = () => {
     </UpperDiv>
   );
 };
-
-const UpperDiv = styled.div`
-  height: 100%;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-
-const Heading = styled.div`
-  width: 100%;
-  text-align: center;
-  font-size: 50px;
-  padding: 10px;
-  color: white;
-  font-family: "Pacifico", cursive;
-  font-weight: 400;
-  font-style: normal;
-`;
-const SubHeading = styled.div`
-  width: 100%;
-  text-align: center;
-  font-size: 20px;
-  color: white;
-`;
-
-const Form = styled.form`
-  padding-top: 2.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  width: 100%;
-`;
-
-const FormLabel = styled.label`
-  display: flex;
-  flex-direction: column;
-  font-size: 25px;
-  margin-bottom: 10px;
-`;
-
-const LabelSpan = styled.span`
-  color: white;
-  font-weight: 500;
-  margin-bottom: 1rem;
-`;
-
-const Input = styled.input`
-  padding: 1rem 1rem;
-  color: black;
-  border-radius: 0.5rem;
-  border: none;
-  outline: none;
-  font-weight: 500;
-
-  &::placeholder {
-    color: #9ca3af;
-  }
-`;
-
-const ButtonContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-`;
-
-const SubmitButton = styled.button`
-  padding: 1rem;
-  width: 200px;
-  border-radius: 0.75rem;
-  outline: none;
-  color: black;
-  font-size: 20px;
-  cursor: pointer;
-`;
-
-const NavigateContainer = styled.div`
-  margin-top: 20px;
-  font-size: 10px;
-  color: white;
-  gap: 4px;
-  cursor: pointer;
-`;
 
 export default Register;
