@@ -53,19 +53,14 @@ const Game = () => {
 
   const handleAnswer = async (option) => {
     const correctAnswer = await getAnswer(option,current.cityId);
-    console.log(correctAnswer);
+    const updatedUserTemp = correctAnswer ? {...user,correct: correct+1} : {...user, incorrect: incorrect+1};
+    const updatedUserResponse = await updateUserDb(user.userId, updatedUserTemp);
+    dispatch(updateUser(updatedUserResponse));
     if (correctAnswer) {
-      const updatedUserTemp = {...user, correct: correct+1};
-      console.log(updatedUserTemp);
-      const updatedUserResponse = await updateUserDb(user.userId, updatedUserTemp);
-      dispatch(updateUser(updatedUserResponse));
       setCorrect((prev)=>prev+1);
       setFeedback(`🎉 Correct! Fun Fact: ${current.fun_fact[getRandomInt(2)]}`);
       setShowConfetti(true);
     } else {
-      const updatedUserTemp = {...user, incorrect: incorrect+1};
-      const updatedUserResponse = await updateUserDb(user.userId, updatedUserTemp);
-      dispatch(updateUser(updatedUserResponse));
       setIncorrect((prev)=>prev+1);
       setFeedback(`😢 Oops! Fun Fact: ${current.fun_fact[getRandomInt(2)]}`);
       setShowConfetti(false);
