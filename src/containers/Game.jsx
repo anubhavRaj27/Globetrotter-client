@@ -5,6 +5,7 @@ import { getRandomCity, getCity, getAnswer, updateUserDb } from "../api";
 import { updateUser, updateUserCities } from "../slices/authSlice";
 import Confetti from "react-confetti";
 import { useWindowSize } from "@uidotdev/usehooks";
+import InviteModal from "./InviteModal";
 
 const Game = () => {
   const user = useSelector((state) => state.auth.user);
@@ -16,6 +17,7 @@ const Game = () => {
   const [showConfetti, setShowConfetti] = useState(false);
   const [fadingOut, setFadingOut] = useState(false);
   const { width, height } = useWindowSize();
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -152,13 +154,33 @@ const Game = () => {
         </Section>
 
         <Section>
-          <ScoreContainer>
+          <SpaceAroundContainer>
             <PointsContainer>Correct: {correct}</PointsContainer>
             <PointsContainer>Incorrect: {incorrect}</PointsContainer>
-          </ScoreContainer>
+          </SpaceAroundContainer>
         </Section>
 
-        {feedback && <NextButton onClick={handleNext}>Next</NextButton>}
+        <SpaceAroundContainer>
+          <NextButton
+            onClick={() => {
+              setOpen(true);
+            }}
+          >
+            Invite
+          </NextButton>
+          <NextButton
+            onClick={() => {
+              feedback ? handleNext() : {};
+            }}
+          >
+            {feedback ? "Next" : "Reset"}
+          </NextButton>
+        </SpaceAroundContainer>
+        <InviteModal
+          userId={user.userId}
+          isOpen={open}
+          onClose={() => setOpen(false)}
+        />
 
         <Footer>
           <p>Globetrotter &copy; 2025</p>
@@ -186,13 +208,14 @@ const GameContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
+  gap: 1.5rem;
   background-color: #213555;
   padding: 2rem;
   border-radius: 1rem;
   width: 500px;
-  height: 90vh;
+  height: 95vh;
   overflow-y: scroll;
+  position: relative;
 `;
 
 const HeaderContainer = styled.header`
@@ -233,14 +256,15 @@ const OptionsContainer = styled.div`
 
 const FeedbackContainer = styled.div`
   width: 100%;
-  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 1.5rem;
+  height: 7rem;
+  overflow: scroll;
 `;
 
-const ScoreContainer = styled.div`
+const SpaceAroundContainer = styled.div`
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -252,7 +276,7 @@ const PointsContainer = styled.div`
 `;
 
 const GameButtons = styled.button`
-  background: #DAEBE3;
+  background: #daebe3;
   color: #333;
   border: none;
   border-radius: 10px;
@@ -264,13 +288,19 @@ const GameButtons = styled.button`
 
 const Clue = styled.p`
   font-size: 1.5rem;
+  height: 5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-y: scroll;
 `;
 
 const NextButton = styled.button`
-  background: #DAEBE3;
+  background: #daebe3;
   border: none;
   border-radius: 10px;
-  padding: 10px 20px;
+  padding: 1rem;
+  width: 40%;
   font-size: 1rem;
   cursor: pointer;
   transition: 0.3s;
@@ -281,6 +311,8 @@ const Footer = styled.footer`
   text-align: center;
   font-size: 0.9rem;
   opacity: 0.7;
+  position: absolute;
+  bottom: 20px;
 `;
 
 export default Game;
