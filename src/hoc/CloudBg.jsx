@@ -1,31 +1,39 @@
-// VantaLayout.jsx
+// VantaLayout.jsx  (React 19 / Vite)
 import { Outlet } from 'react-router-dom';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import CLOUDS from 'vanta/dist/vanta.clouds.min';
+import * as THREE from 'three';
 import styled from 'styled-components';
 
-const CloudBg = () => {
-  const [vantaEffect, setVantaEffect] = useState(null);
-  const bgRef = useRef(null);
+const VantaLayout = () => {
+  const bgRef   = useRef(null);   
+  const effect  = useRef(null);   
 
   useEffect(() => {
-    if (!vantaEffect) {
-      setVantaEffect(CLOUDS({ el: bgRef.current }));
+    if (!effect.current) {
+      effect.current = CLOUDS({
+        el: bgRef.current,
+        THREE,                   
+        speed:      1.2,
+      });
     }
-    return () => vantaEffect?.destroy();
-  }, [vantaEffect]);
+    return () => {             
+      effect.current?.destroy();
+      effect.current = null;
+    };
+  }, []);
 
   return (
     <Container ref={bgRef}>
       <Outlet />
     </Container>
   );
-}
+};
 
-const Container = styled.div`     
+const Container = styled.div`
   width: 100vw;
   height: 100vh;
-  overflow: scroll;
+  overflow: auto;
 `;
 
-export default CloudBg;
+export default VantaLayout;
