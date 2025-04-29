@@ -148,9 +148,9 @@ const Game = () => {
   };
 
   const handleLogout = () => {
-    dispatch(setLogin({user:null, token: null}));
-    navigate('/login');
-  }
+    dispatch(setLogin({ user: null, token: null }));
+    navigate("/login");
+  };
 
   return (
     <OuterContainer>
@@ -230,6 +230,7 @@ const Game = () => {
           >
             Invite
           </NextButton>
+          <BadgeContainer>{user.userName}</BadgeContainer>
           <NextButton
             onClick={() => {
               feedback ? handleNext() : handleReset();
@@ -239,13 +240,10 @@ const Game = () => {
             {feedback ? "Next" : "Reset"}
           </NextButton>
         </SpaceAroundContainer>
-        <InviteModal
-          isOpen={open}
-          onClose={() => setOpen(false)}
-        />
+        <InviteModal isOpen={open} onClose={() => setOpen(false)} />
 
         <Footer>
-          <Logout onClick={handleLogout} >Logout</Logout>
+          <Logout onClick={handleLogout}>Logout</Logout>
           <p>Globetrotter &copy; 2025</p>
         </Footer>
       </GameContainer>
@@ -259,10 +257,16 @@ const OuterContainer = styled.div`
   align-items: center;
   height: 100vh;
   width: 100vw;
-  padding: 2rem;
+  padding: 1rem;
   gap: 2.5rem;
   position: relative;
   z-index: 1;
+  overflow: auto;
+
+  @media (max-width: 600px) {
+    gap: 1.5rem;
+    padding: 0.5rem;
+  }
 `;
 
 const GameContainer = styled.div`
@@ -276,9 +280,13 @@ const GameContainer = styled.div`
   padding: 2rem;
   border-radius: 1rem;
   width: 500px;
-  height: 95vh;
-  overflow-y: scroll;
   position: relative;
+
+  @media (max-width: 600px) {
+    width: 95vw;
+    padding: 1.5rem;
+    gap: 1rem;
+  }
 `;
 
 const HeaderContainer = styled.header`
@@ -292,10 +300,18 @@ const HeaderContainer = styled.header`
 const Title = styled.div`
   font-family: "Pacifico", cursive;
   font-size: 4rem;
+
+  @media (max-width: 600px) {
+    font-size: 2.5rem;
+  }
 `;
 
 const Subtitle = styled.div`
   font-size: 1rem;
+
+  @media (max-width: 600px) {
+    font-size: 0.9rem;
+  }
 `;
 
 const Section = styled.section`
@@ -315,6 +331,10 @@ const OptionsContainer = styled.div`
   display: grid;
   grid-template: repeat(2, 1fr) / repeat(2, 1fr);
   gap: 10px;
+
+  @media (max-width: 480px) {
+    grid-template: repeat(4, 1fr) / 1fr; /* stack vertically on very small screens */
+  }
 `;
 
 const FeedbackContainer = styled.div`
@@ -332,10 +352,15 @@ const SpaceAroundContainer = styled.div`
   justify-content: space-around;
   align-items: center;
   width: 100%;
+  padding: 0 10px;
 `;
 
 const PointsContainer = styled.div`
   font-size: 1.5rem;
+
+  @media (max-width: 600px) {
+    font-size: 1.2rem;
+  }
 `;
 
 const GameButtons = styled.button`
@@ -347,6 +372,11 @@ const GameButtons = styled.button`
   cursor: pointer;
   font-size: 1rem;
   transition: 0.3s;
+
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
+    padding: 16px;
+  }
 `;
 
 const Clue = styled.p`
@@ -356,6 +386,11 @@ const Clue = styled.p`
   justify-content: center;
   align-items: center;
   overflow-y: scroll;
+
+  @media (max-width: 600px) {
+    font-size: 1.2rem;
+    height: 4rem;
+  }
 `;
 
 const NextButton = styled.button`
@@ -363,10 +398,48 @@ const NextButton = styled.button`
   border: none;
   border-radius: 10px;
   padding: 1rem;
-  width: 40%;
+  width: 28%;
   font-size: 1rem;
   cursor: pointer;
   transition: 0.3s;
+
+  @media (max-width: 600px) {
+    width: 28%;
+    padding: 0.8rem;
+    font-size: 0.9rem;
+  }
+`;
+
+const BadgeContainer = styled.div`
+  display: inline-block;
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #072d65, #39516b);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 500;
+  font-family: "Pacifico", cursive;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05) rotate(-1deg);
+  }
+
+  strong {
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 0 5px #00ffccaa;
+  }
+
+  span {
+    margin-right: 6px;
+    opacity: 0.8;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+  }
 `;
 
 const Footer = styled.footer`
@@ -374,12 +447,17 @@ const Footer = styled.footer`
   text-align: center;
   font-size: 0.9rem;
   opacity: 0.7;
-  position: absolute;
-  bottom: 20px;
+  @media (max-width: 600px) {
+    font-size: 0.75rem;
+  }
 `;
 
 const Logout = styled.span`
   cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 export default Game;

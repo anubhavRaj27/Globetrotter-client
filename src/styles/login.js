@@ -6,6 +6,10 @@ export const UpperDiv = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  @media (max-width: 768px) {
+    gap: 1rem;
+  }
 `;
 
 export const Heading = styled.div`
@@ -17,12 +21,20 @@ export const Heading = styled.div`
   font-family: "Pacifico", cursive;
   font-weight: 400;
   font-style: normal;
+
+  @media (max-width: 768px) {
+    font-size: 2.2rem;
+  }
 `;
 export const SubHeading = styled.div`
   width: 100%;
   text-align: center;
   font-size: 20px;
   color: white;
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+  }
 `;
 
 export const Form = styled.form`
@@ -56,6 +68,8 @@ export const Input = styled.input`
   &::placeholder {
     color: #9ca3af;
   }
+
+  
 `;
 
 export const ButtonContainer = styled.div`
@@ -95,22 +109,28 @@ export const ErrorContainer = styled.span`
   font-size: 12px;
 `;
 
-const shimmer = keyframes`
-   0%   { background-position: -400% 0; }
-   100% { background-position:  400% 0; }
- `;
+export const shimmer = keyframes`
+  0% {
+    background-position: -150% 0;
+  }
+  50% {
+    background-position: 150% 0;
+  }
+  100% {
+    background-position: 250% 0;
+  }
+`;
 
 export const ShimmerBox = styled.div`
   width: ${({ w = "100%" }) => w};
   height: ${({ h = "5rem" }) => h};
-  border-radius: 20px;
+  border-radius: 12px;
   background: linear-gradient(
-    100deg,
-    rgba(255, 255, 255, 0.05) 0%,
-    rgba(255, 255, 255, 0.25) 20%,
-    rgba(255, 255, 255, 0.05) 40%,
-    rgba(255, 255, 255, 0.05) 100%
+    90deg,
+    rgba(255, 255, 255, 0.06) 25%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.06) 75%
   );
   background-size: 400% 100%;
-  animation: ${shimmer} 1.2s ease-in-out infinite;
+  animation: ${shimmer} 3.2s linear infinite;
 `;

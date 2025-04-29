@@ -23,6 +23,14 @@ const VantaLayout = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const handleResize = () => {
+      effect.current?.resize();
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <Container ref={bgRef}>
       <Outlet />
@@ -30,10 +38,9 @@ const VantaLayout = () => {
   );
 };
 
-const Container = styled.div`
-  width: 100vw;
-  height: 100vh;
+const Container = styled.div`         
   overflow: auto;
+  height: 100vh;
 `;
 
 export default VantaLayout;
