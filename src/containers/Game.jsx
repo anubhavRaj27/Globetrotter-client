@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { getRandomCity, getCity, getAnswer, updateUserDb } from "../api";
 import { updateUser, updateUserCities } from "../slices/authSlice";
+import Confetti from "react-confetti";
+import { useWindowSize } from "@uidotdev/usehooks";
 
 const Game = () => {
   const user = useSelector((state) => state.auth.user);
@@ -12,6 +14,8 @@ const Game = () => {
   const [feedback, setFeedback] = useState("");
   const dispatch = useDispatch();
   const [showConfetti, setShowConfetti] = useState(false);
+  const [fadingOut, setFadingOut] = useState(false);
+  const { width, height } = useWindowSize();
 
   useEffect(() => {
     if (user) {
@@ -26,6 +30,23 @@ const Game = () => {
       })();
     }
   }, []);
+
+  useEffect(() => {
+    if (showConfetti) {
+      const fade = setTimeout(() => setFadingOut(true), 4500);
+      const done = setTimeout(() => setShowConfetti(false), 5200);
+
+      return () => {
+        clearTimeout(fade);
+        clearTimeout(done);
+      };
+    }
+  }, [showConfetti]);
+
+  const triggerConfetti = () => {
+    setFadingOut(false);
+    setShowConfetti(true);
+  };
 
   const getNextCity = async () => {
     try {
@@ -64,11 +85,10 @@ const Game = () => {
     if (correctAnswer) {
       setCorrect((prev) => prev + 1);
       setFeedback(`🎉 Correct! Fun Fact: ${current.fun_fact[getRandomInt(2)]}`);
-      setShowConfetti(true);
+      triggerConfetti();
     } else {
       setIncorrect((prev) => prev + 1);
-      setFeedback(`😢 Oops! Fun Fact: ${current.fun_fact[getRandomInt(2)]}`);
-      setShowConfetti(false);
+      setFeedback(`😢 Oops! Trivia: ${current.trivia[getRandomInt(2)]}`);
     }
   };
 
@@ -82,6 +102,22 @@ const Game = () => {
   return (
     <OuterContainer>
       <GameContainer>
+        {showConfetti && (
+          <Confetti
+            width={width ?? 0}
+            height={height ?? 0}
+            numberOfPieces={300}
+            recycle={false}
+            tweenDuration={6000}
+            style={{
+              position: "fixed",
+              inset: 0,
+              pointerEvents: "none",
+              transition: "opacity 0.7s ease-out",
+              opacity: fadingOut ? 0 : 1,
+            }}
+          />
+        )}
         <HeaderContainer>
           <Title>Globetrotter</Title>
           <Subtitle>Guess the Destination from the Clues!</Subtitle>
@@ -97,7 +133,7 @@ const Game = () => {
         <Section>
           {feedback ? (
             <FeedbackContainer>
-              <div >{feedback}</div>
+              <div>{feedback}</div>
             </FeedbackContainer>
           ) : (
             current && (
@@ -122,11 +158,7 @@ const Game = () => {
           </ScoreContainer>
         </Section>
 
-        {feedback && (
-          <NextButton onClick={handleNext}>
-            Next
-          </NextButton>
-        )}
+        {feedback && <NextButton onClick={handleNext}>Next</NextButton>}
 
         <Footer>
           <p>Globetrotter &copy; 2025</p>
@@ -220,7 +252,7 @@ const PointsContainer = styled.div`
 `;
 
 const GameButtons = styled.button`
-  background: #ffdd57;
+  background: #DAEBE3;
   color: #333;
   border: none;
   border-radius: 10px;
@@ -235,20 +267,20 @@ const Clue = styled.p`
 `;
 
 const NextButton = styled.button`
-      background: #28a745;
-    border: none;
-    border-radius: 10px;
-    padding: 10px 20px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: 0.3s;
+  background: #DAEBE3;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.3s;
 `;
 
 const Footer = styled.footer`
-    margin-top: auto;
-    text-align: center;
-    font-size: 0.9rem;
-    opacity: 0.7;
+  margin-top: auto;
+  text-align: center;
+  font-size: 0.9rem;
+  opacity: 0.7;
 `;
 
 export default Game;
